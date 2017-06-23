@@ -10,11 +10,16 @@ using System.Windows.Forms;
 
 namespace TextAnalyzer
 {
-    public partial class Form1 : Form
+    public partial class TextAnalyzer : Form
     {
-        public Form1()
+        public TextAnalyzer()
         {
             InitializeComponent();
+        }
+
+        private void TextAnalyzer_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

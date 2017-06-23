@@ -1,6 +1,6 @@
 ﻿namespace TextAnalyzer
 {
-    partial class Form1
+    partial class TextAnalyzer
     {
         /// <summary>
         /// Обязательная переменная конструктора.
@@ -28,9 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // TextAnalyzer
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Name = "TextAnalyzer";
+            this.Text = "TextAnalyzer";
+            this.Load += new System.EventHandler(this.TextAnalyzer_Load);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
