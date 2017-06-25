@@ -13,17 +13,26 @@ namespace TextAnalyzer
 {
     public interface OnProgressChangedListener
     {
-        void onProgressInitialized(int max, int offset);
-        void onProgressChanged(int position);
+        void onProgressInitialized(int max);
+        void onProgressChanged();
         void onProgressCompleted(string message);
     }
 
-    public partial class TextAnalyzer : Form, OnProgressChangedListener
+    public partial class TextAnalyzer : Form, 
+        OnProgressChangedListener, 
+        OnTextLoadedListener,
+        OnWordsLoadedListener,
+        OnWordsCountedListener
+
     {
         private string text;
         private List<string> words;
+        private Dictionary<string, int> counts;
+        private Thread workerThread;
         private Analyzer analyzer;
         private Reader reader;
+
+        private delegate void EmptyDelegate();
 
         public TextAnalyzer()
         {
@@ -32,72 +41,111 @@ namespace TextAnalyzer
 
         private void TextAnalyzer_Load(object sender, EventArgs e)
         {
-            analyzer = new Analyzer(this);
-            reader = new Reader(this);
+            analyzer = new Analyzer(this, this, this);
         }
 
         private void writeToListBox(List<string> items)
         {
-            lb_words.Items.Clear();
-            if (words.Count > 0)
+            showMessage("Всего: " + items.Count);
+            foreach (string item in items)
             {
-                lb_words.Items.Add("Всего: " + items.Count);
-                foreach (string item in items)
-                {
-                    lb_words.Items.Add(item);
-                }
+                lb_words.Items.Add(item);
             }
-            else
-            {
-                lb_words.Items.Add("Элементы не найдены!");
-            }
-            
         }
 
         private void btn_words_Click(object sender, EventArgs e)
         {
-            words = analyzer.getWordsFromText(text);
-            writeToListBox(words);
-            
-        }
-
-        private void btn_load_Click(object sender, EventArgs e)
-        {
-            text = reader.readTextFromFile();
-            if (text.Length < 0)
-            {
-                lb_words.Items.Clear();
-                lb_words.Items.Add("Ошибка чтения файла!");
-            }
+            showMessage("Идет поиск...");
+            workerThread = new Thread(new ParameterizedThreadStart(analyzer.getWordsFromText));
+            workerThread.Start(text);
         }
 
         private void btn_count_Click(object sender, EventArgs e)
         {
-            Dictionary<string, int> counts = analyzer.getWordsCount(words);
+            showMessage("Идет подсчёт...");
+            workerThread = new Thread(new ParameterizedThreadStart(analyzer.getWordsCount));
+            workerThread.Start(words);
+        }
+
+        private void btn_load_Click(object sender, EventArgs e)
+        {
+            btn_words.Enabled = false;
+            btn_count.Enabled = false;
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "Файлы MS Word |*.docx",
+                Multiselect = false
+            };
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                showMessage("Загрузка...");
+                reader = new Reader(dialog.FileName, this, this);
+                workerThread = new Thread(reader.readTextFromFile);
+                workerThread.Start();
+            }
+            else
+            {
+                showMessage("Файл не выбран!");
+            }
+        }
+
+        public void onProgressInitialized(int max)
+        {
+            pb_progress.Invoke(new EmptyDelegate(() => 
+            {
+                pb_progress.Maximum = max;
+                pb_progress.Value = 0;
+            }));
+        }
+
+        public void onProgressChanged()
+        {
+            pb_progress.Invoke(new EmptyDelegate(() => 
+            {
+                pb_progress.Value++;
+            }));
+        }
+
+        public void showMessage(string message)
+        {
+            lb_words.Invoke(new EmptyDelegate(() => 
+            {
+                lb_words.Items.Clear();
+                lb_words.Items.Add(message);
+            }));
+        }
+
+        public void onTextLoadingCompleted(string text)
+        {
+            this.text = text;
+            btn_words.Enabled = true;
+        }
+
+        public void onProgressCompleted(string message)
+        {
+            pb_progress.Invoke(new EmptyDelegate(() =>
+            {
+                pb_progress.Value = pb_progress.Maximum;
+            }));
+            showMessage(message);
+        }
+
+        public void onWordsLoadingCompleted(List<string> words)
+        {
+            this.words = words;
+            btn_count.Enabled = true;
+            writeToListBox(words);
+        }
+
+        public void onWordsCountingCompleted(Dictionary<string, int> counts)
+        {
+            this.counts = counts;
             List<string> items = new List<string>();
             foreach (string key in counts.Keys)
             {
                 items.Add(key + ": " + counts[key]);
             }
             writeToListBox(items);
-        }
-
-        public void onProgressInitialized(int max, int step)
-        {
-            pb_progress.Maximum = max;
-            pb_progress.Step = step;
-            pb_progress.Value = 0;
-        }
-
-        public void onProgressChanged(int offset)
-        {
-            pb_progress.Value = pb_progress.Value + offset * pb_progress.Step;
-        }
-
-        public void onProgressCompleted(string message)
-        {
-            lb_words.Items.Clear();
-            lb_words.Items.Add(message);
         }
     }
 

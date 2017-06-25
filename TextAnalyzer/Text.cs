@@ -1,67 +1,88 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using Word = Microsoft.Office.Interop.Word;
 
 namespace TextAnalyzer
 {
+    public interface OnTextLoadedListener
+    {
+        void onTextLoadingCompleted(string text);
+    }
+
+    public interface OnWordsLoadedListener
+    {
+        void onWordsLoadingCompleted(List<string> words);
+    }
+
+    public interface OnWordsCountedListener
+    {
+        void onWordsCountingCompleted(Dictionary<string, int> counts);
+    }
+
     public class Reader
     {
-        public OnProgressChangedListener onProgressChangedListener;
 
-        public Reader(OnProgressChangedListener onProgressChangedListener)
+        private Object fileName;
+        private OnTextLoadedListener onTextLoadedListener;
+        private OnProgressChangedListener onProgressChangedListener;
+
+        public Reader(string fileName,
+            OnTextLoadedListener onTextLoadedListener,
+            OnProgressChangedListener onProgressChangedListener)
         {
+            this.fileName = fileName;
+            this.onTextLoadedListener = onTextLoadedListener;
             this.onProgressChangedListener = onProgressChangedListener;
         }
 
-        public string readTextFromFile()
+        public void readTextFromFile()
         {
             string text = "";
-            OpenFileDialog dialog = new OpenFileDialog
+            Word.Application wordApp = new Word.Application();
+            wordApp.Documents.Open(ref fileName);
+            Word.Document wordDoc = wordApp.ActiveDocument;
+            //Init progress bar on Form
+            onProgressChangedListener.onProgressInitialized(wordDoc.Paragraphs.Count);
+            foreach (Word.Paragraph paragraph in wordDoc.Paragraphs)
             {
-                Filter = "Файлы MS Word |*.docx",
-                Multiselect = false
-            };
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                Word.Application wordApp = new Word.Application();
-                Object fileName = dialog.FileName;
-                wordApp.Documents.Open(ref fileName);
-                Word.Document wordDoc = wordApp.ActiveDocument;
-                
-                //Init progress bar on Form
-                onProgressChangedListener.onProgressInitialized(wordDoc.Paragraphs.Count, 1);
-                foreach (Word.Paragraph paragraph in wordDoc.Paragraphs)
-                {
-                    string line = paragraph.Range.Text;
-                    text = string.Concat(text, line);
-                    //Set new position on progress bar
-                    onProgressChangedListener.onProgressChanged(1);
-                }
-                wordApp.Quit();
+                string line = paragraph.Range.Text;
+                text = string.Concat(text, line);
+                //Set new position on progress bar
+                onProgressChangedListener.onProgressChanged();
             }
             onProgressChangedListener.onProgressCompleted("Текст загружен!");
-            return text;
+            wordApp.Quit();
+            onTextLoadedListener.onTextLoadingCompleted(text);
         }
     }
 
     public class Analyzer
     {
-        public OnProgressChangedListener onProgressChangedListener;
+        private OnProgressChangedListener onProgressChangedListener;
+        private OnWordsLoadedListener onWordsLoadedListener;
+        private OnWordsCountedListener onWordsCountedListener;
 
-        public Analyzer(OnProgressChangedListener onProgressChangedListener)
+        public Analyzer(OnProgressChangedListener onProgressChangedListener,
+            OnWordsLoadedListener onWordsLoadedListener,
+            OnWordsCountedListener onWordsCountedListener)
         {
             this.onProgressChangedListener = onProgressChangedListener;
+            this.onWordsLoadedListener = onWordsLoadedListener;
+            this.onWordsCountedListener = onWordsCountedListener;
         }
 
-        public List<string> getWordsFromText(string text)
+        public void getWordsFromText(object parameter)
         {
+            string text = (string)parameter;
             List<string> words = new List<string>();
-            char[] separator = { ' ', ',', '.', ':', '"', '\'', ';', '-', ')', '(', '?', '!', '_', '\t', '\n', '\r' };
+            char[] separator = { ' ', ',', '.', ':', '"', '\'', ';', '-', ')', '\\', '*', '%', '$', '@', 
+                '(', '?', '!', '_', '\t', '\n', '\r', '<', '>', '/', '~', '#', '+', '—' };
             string[] splittedWords = text.Split(separator);
             //Init progress bar on Form
-            onProgressChangedListener.onProgressInitialized(splittedWords.Length, 1);
+            onProgressChangedListener.onProgressInitialized(splittedWords.Length);
             foreach (string splittedWord in splittedWords)
             {
                 string word = splittedWord.Trim();
@@ -70,16 +91,17 @@ namespace TextAnalyzer
                     words.Add(word);
                 }
                 // Set new position on progress bar
-                onProgressChangedListener.onProgressChanged(1);
+                onProgressChangedListener.onProgressChanged();
             }
-            return words;
+            onWordsLoadedListener.onWordsLoadingCompleted(words);
         }
 
-        public Dictionary<string, int> getWordsCount(List<string> words)
+        public void getWordsCount(object parameter)
         {
+            List<string> words = (List<string>)parameter;
             Dictionary<string, int> counts = new Dictionary<string, int>();
             //Init progress bar on Form
-            onProgressChangedListener.onProgressInitialized(words.Count, 1);
+            onProgressChangedListener.onProgressInitialized(words.Count);
             for (int i = 0; i < words.Count; i++)
             {
                 string key = words[i];
@@ -92,9 +114,9 @@ namespace TextAnalyzer
                     counts.Add(key, 1);
                 }
                 // Set new position on progress bar
-                onProgressChangedListener.onProgressChanged(1);
+                onProgressChangedListener.onProgressChanged();
             }
-            return counts;
+            onWordsCountedListener.onWordsCountingCompleted(counts);
         }
     }
 }

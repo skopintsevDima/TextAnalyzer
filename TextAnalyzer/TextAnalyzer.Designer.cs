@@ -37,11 +37,12 @@
             // 
             // btn_words
             // 
+            this.btn_words.Enabled = false;
             this.btn_words.Location = new System.Drawing.Point(362, 46);
             this.btn_words.Name = "btn_words";
             this.btn_words.Size = new System.Drawing.Size(110, 23);
             this.btn_words.TabIndex = 0;
-            this.btn_words.Text = "Показать слова";
+            this.btn_words.Text = "Найти все слова";
             this.btn_words.UseVisualStyleBackColor = true;
             this.btn_words.Click += new System.EventHandler(this.btn_words_Click);
             // 
@@ -51,7 +52,7 @@
             this.btn_load.Name = "btn_load";
             this.btn_load.Size = new System.Drawing.Size(110, 23);
             this.btn_load.TabIndex = 2;
-            this.btn_load.Text = "Выбрать текст";
+            this.btn_load.Text = "Загрузить текст";
             this.btn_load.UseVisualStyleBackColor = true;
             this.btn_load.Click += new System.EventHandler(this.btn_load_Click);
             // 
@@ -65,6 +66,7 @@
             // 
             // btn_count
             // 
+            this.btn_count.Enabled = false;
             this.btn_count.Location = new System.Drawing.Point(362, 75);
             this.btn_count.Name = "btn_count";
             this.btn_count.Size = new System.Drawing.Size(110, 23);
@@ -91,6 +93,7 @@
             this.Controls.Add(this.lb_words);
             this.Controls.Add(this.btn_load);
             this.Controls.Add(this.btn_words);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "TextAnalyzer";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TextAnalyzer";
