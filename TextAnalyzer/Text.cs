@@ -8,7 +8,14 @@ namespace TextAnalyzer
 {
     public class Reader
     {
-        public static string readTextFromFile()
+        public OnProgressChangedListener onProgressChangedListener;
+
+        public Reader(OnProgressChangedListener onProgressChangedListener)
+        {
+            this.onProgressChangedListener = onProgressChangedListener;
+        }
+
+        public string readTextFromFile()
         {
             string text = "";
             OpenFileDialog dialog = new OpenFileDialog
@@ -22,38 +29,57 @@ namespace TextAnalyzer
                 Object fileName = dialog.FileName;
                 wordApp.Documents.Open(ref fileName);
                 Word.Document wordDoc = wordApp.ActiveDocument;
+                
+                //Init progress bar on Form
+                onProgressChangedListener.onProgressInitialized(wordDoc.Paragraphs.Count, 1);
                 foreach (Word.Paragraph paragraph in wordDoc.Paragraphs)
                 {
                     string line = paragraph.Range.Text;
                     text = string.Concat(text, line);
+                    //Set new position on progress bar
+                    onProgressChangedListener.onProgressChanged(1);
                 }
                 wordApp.Quit();
             }
+            onProgressChangedListener.onProgressCompleted("Текст загружен!");
             return text;
         }
     }
 
     public class Analyzer
     {
-        public static List<string> getWordsFromText(string text)
+        public OnProgressChangedListener onProgressChangedListener;
+
+        public Analyzer(OnProgressChangedListener onProgressChangedListener)
+        {
+            this.onProgressChangedListener = onProgressChangedListener;
+        }
+
+        public List<string> getWordsFromText(string text)
         {
             List<string> words = new List<string>();
-            char[] separator = { ' ', ',', '.', ':', '"', '\'', ';', '-', '\t' };
+            char[] separator = { ' ', ',', '.', ':', '"', '\'', ';', '-', ')', '(', '?', '!', '_', '\t', '\n', '\r' };
             string[] splittedWords = text.Split(separator);
+            //Init progress bar on Form
+            onProgressChangedListener.onProgressInitialized(splittedWords.Length, 1);
             foreach (string splittedWord in splittedWords)
             {
                 string word = splittedWord.Trim();
-                if (word.Length > 0)
+                if (word.Length > 0 && !Int32.TryParse(word, out int res))
                 {
                     words.Add(word);
                 }
+                // Set new position on progress bar
+                onProgressChangedListener.onProgressChanged(1);
             }
             return words;
         }
 
-        public static Dictionary<string, int> getWordsCount(List<string> words)
+        public Dictionary<string, int> getWordsCount(List<string> words)
         {
             Dictionary<string, int> counts = new Dictionary<string, int>();
+            //Init progress bar on Form
+            onProgressChangedListener.onProgressInitialized(words.Count, 1);
             for (int i = 0; i < words.Count; i++)
             {
                 string key = words[i];
@@ -65,6 +91,8 @@ namespace TextAnalyzer
                 {
                     counts.Add(key, 1);
                 }
+                // Set new position on progress bar
+                onProgressChangedListener.onProgressChanged(1);
             }
             return counts;
         }
