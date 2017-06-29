@@ -39,21 +39,22 @@
             this.оПрограммеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gb_analysis = new System.Windows.Forms.GroupBox();
             this.gb_finding = new System.Windows.Forms.GroupBox();
+            this.btn_showTop = new System.Windows.Forms.Button();
+            this.lbl_showTop = new System.Windows.Forms.Label();
+            this.num_showTop = new System.Windows.Forms.NumericUpDown();
+            this.btn_resetFinding = new System.Windows.Forms.Button();
+            this.lbl_wordToFind = new System.Windows.Forms.Label();
             this.gb_sorting = new System.Windows.Forms.GroupBox();
-            this.tb_wordToFind = new System.Windows.Forms.TextBox();
-            this.btn_startFinding = new System.Windows.Forms.Button();
             this.rb_byCount = new System.Windows.Forms.RadioButton();
             this.rb_byAlphabet = new System.Windows.Forms.RadioButton();
-            this.lbl_wordToFind = new System.Windows.Forms.Label();
-            this.btn_resetFinding = new System.Windows.Forms.Button();
-            this.num_showTop = new System.Windows.Forms.NumericUpDown();
-            this.lbl_showTop = new System.Windows.Forms.Label();
-            this.btn_showTop = new System.Windows.Forms.Button();
+            this.tb_wordToFind = new System.Windows.Forms.TextBox();
+            this.btn_startFinding = new System.Windows.Forms.Button();
+            this.btn_FindingWord = new System.Windows.Forms.Button();
             this.ms_menu.SuspendLayout();
             this.gb_analysis.SuspendLayout();
             this.gb_finding.SuspendLayout();
-            this.gb_sorting.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_showTop)).BeginInit();
+            this.gb_sorting.SuspendLayout();
             this.SuspendLayout();
             // 
             // lb_words
@@ -111,7 +112,7 @@
             // mi_startAnalysis
             // 
             this.mi_startAnalysis.Name = "mi_startAnalysis";
-            this.mi_startAnalysis.Size = new System.Drawing.Size(152, 22);
+            this.mi_startAnalysis.Size = new System.Drawing.Size(113, 22);
             this.mi_startAnalysis.Text = "Начать";
             this.mi_startAnalysis.Click += new System.EventHandler(this.mi_startAnalysis_Click);
             // 
@@ -141,6 +142,7 @@
             // 
             // gb_finding
             // 
+            this.gb_finding.Controls.Add(this.btn_FindingWord);
             this.gb_finding.Controls.Add(this.btn_showTop);
             this.gb_finding.Controls.Add(this.lbl_showTop);
             this.gb_finding.Controls.Add(this.num_showTop);
@@ -157,6 +159,51 @@
             this.gb_finding.Text = "Поиск";
             this.gb_finding.Visible = false;
             // 
+            // btn_showTop
+            // 
+            this.btn_showTop.Location = new System.Drawing.Point(6, 216);
+            this.btn_showTop.Name = "btn_showTop";
+            this.btn_showTop.Size = new System.Drawing.Size(75, 23);
+            this.btn_showTop.TabIndex = 11;
+            this.btn_showTop.Text = "Показать";
+            this.btn_showTop.UseVisualStyleBackColor = true;
+            this.btn_showTop.Click += new System.EventHandler(this.btn_showTop_Click);
+            // 
+            // lbl_showTop
+            // 
+            this.lbl_showTop.AutoSize = true;
+            this.lbl_showTop.Location = new System.Drawing.Point(6, 200);
+            this.lbl_showTop.Name = "lbl_showTop";
+            this.lbl_showTop.Size = new System.Drawing.Size(76, 13);
+            this.lbl_showTop.TabIndex = 10;
+            this.lbl_showTop.Text = "Показать топ";
+            // 
+            // num_showTop
+            // 
+            this.num_showTop.Location = new System.Drawing.Point(88, 198);
+            this.num_showTop.Name = "num_showTop";
+            this.num_showTop.Size = new System.Drawing.Size(57, 20);
+            this.num_showTop.TabIndex = 8;
+            // 
+            // btn_resetFinding
+            // 
+            this.btn_resetFinding.Location = new System.Drawing.Point(140, 268);
+            this.btn_resetFinding.Name = "btn_resetFinding";
+            this.btn_resetFinding.Size = new System.Drawing.Size(75, 23);
+            this.btn_resetFinding.TabIndex = 9;
+            this.btn_resetFinding.Text = "Сброс";
+            this.btn_resetFinding.UseVisualStyleBackColor = true;
+            this.btn_resetFinding.Click += new System.EventHandler(this.btn_resetFinding_Click);
+            // 
+            // lbl_wordToFind
+            // 
+            this.lbl_wordToFind.AutoSize = true;
+            this.lbl_wordToFind.Location = new System.Drawing.Point(6, 27);
+            this.lbl_wordToFind.Name = "lbl_wordToFind";
+            this.lbl_wordToFind.Size = new System.Drawing.Size(44, 13);
+            this.lbl_wordToFind.TabIndex = 8;
+            this.lbl_wordToFind.Text = "Искать";
+            // 
             // gb_sorting
             // 
             this.gb_sorting.Controls.Add(this.rb_byCount);
@@ -167,23 +214,6 @@
             this.gb_sorting.TabIndex = 7;
             this.gb_sorting.TabStop = false;
             this.gb_sorting.Text = "Сортировать";
-            // 
-            // tb_wordToFind
-            // 
-            this.tb_wordToFind.Location = new System.Drawing.Point(6, 45);
-            this.tb_wordToFind.Name = "tb_wordToFind";
-            this.tb_wordToFind.Size = new System.Drawing.Size(209, 20);
-            this.tb_wordToFind.TabIndex = 7;
-            // 
-            // btn_startFinding
-            // 
-            this.btn_startFinding.Location = new System.Drawing.Point(6, 71);
-            this.btn_startFinding.Name = "btn_startFinding";
-            this.btn_startFinding.Size = new System.Drawing.Size(75, 23);
-            this.btn_startFinding.TabIndex = 0;
-            this.btn_startFinding.Text = "Найти";
-            this.btn_startFinding.UseVisualStyleBackColor = true;
-            this.btn_startFinding.Click += new System.EventHandler(this.btn_startFinding_Click);
             // 
             // rb_byCount
             // 
@@ -209,50 +239,32 @@
             this.rb_byAlphabet.UseVisualStyleBackColor = true;
             this.rb_byAlphabet.CheckedChanged += new System.EventHandler(this.rb_byAlphabet_CheckedChanged);
             // 
-            // lbl_wordToFind
+            // tb_wordToFind
             // 
-            this.lbl_wordToFind.AutoSize = true;
-            this.lbl_wordToFind.Location = new System.Drawing.Point(6, 27);
-            this.lbl_wordToFind.Name = "lbl_wordToFind";
-            this.lbl_wordToFind.Size = new System.Drawing.Size(44, 13);
-            this.lbl_wordToFind.TabIndex = 8;
-            this.lbl_wordToFind.Text = "Искать";
+            this.tb_wordToFind.Location = new System.Drawing.Point(6, 45);
+            this.tb_wordToFind.Name = "tb_wordToFind";
+            this.tb_wordToFind.Size = new System.Drawing.Size(209, 20);
+            this.tb_wordToFind.TabIndex = 7;
             // 
-            // btn_resetFinding
+            // btn_startFinding
             // 
-            this.btn_resetFinding.Location = new System.Drawing.Point(140, 268);
-            this.btn_resetFinding.Name = "btn_resetFinding";
-            this.btn_resetFinding.Size = new System.Drawing.Size(75, 23);
-            this.btn_resetFinding.TabIndex = 9;
-            this.btn_resetFinding.Text = "Сброс";
-            this.btn_resetFinding.UseVisualStyleBackColor = true;
-            this.btn_resetFinding.Click += new System.EventHandler(this.btn_resetFinding_Click);
+            this.btn_startFinding.Location = new System.Drawing.Point(6, 71);
+            this.btn_startFinding.Name = "btn_startFinding";
+            this.btn_startFinding.Size = new System.Drawing.Size(86, 23);
+            this.btn_startFinding.TabIndex = 0;
+            this.btn_startFinding.Text = "Совпадение";
+            this.btn_startFinding.UseVisualStyleBackColor = true;
+            this.btn_startFinding.Click += new System.EventHandler(this.btn_startFinding_Click);
             // 
-            // num_showTop
+            // btn_FindingWord
             // 
-            this.num_showTop.Location = new System.Drawing.Point(88, 198);
-            this.num_showTop.Name = "num_showTop";
-            this.num_showTop.Size = new System.Drawing.Size(57, 20);
-            this.num_showTop.TabIndex = 8;
-            // 
-            // lbl_showTop
-            // 
-            this.lbl_showTop.AutoSize = true;
-            this.lbl_showTop.Location = new System.Drawing.Point(6, 200);
-            this.lbl_showTop.Name = "lbl_showTop";
-            this.lbl_showTop.Size = new System.Drawing.Size(76, 13);
-            this.lbl_showTop.TabIndex = 10;
-            this.lbl_showTop.Text = "Показать топ";
-            // 
-            // btn_showTop
-            // 
-            this.btn_showTop.Location = new System.Drawing.Point(6, 216);
-            this.btn_showTop.Name = "btn_showTop";
-            this.btn_showTop.Size = new System.Drawing.Size(75, 23);
-            this.btn_showTop.TabIndex = 11;
-            this.btn_showTop.Text = "Показать";
-            this.btn_showTop.UseVisualStyleBackColor = true;
-            this.btn_showTop.Click += new System.EventHandler(this.btn_showTop_Click);
+            this.btn_FindingWord.Location = new System.Drawing.Point(129, 71);
+            this.btn_FindingWord.Name = "btn_FindingWord";
+            this.btn_FindingWord.Size = new System.Drawing.Size(86, 23);
+            this.btn_FindingWord.TabIndex = 12;
+            this.btn_FindingWord.Text = "Слово";
+            this.btn_FindingWord.UseVisualStyleBackColor = true;
+            this.btn_FindingWord.Click += new System.EventHandler(this.btn_FindingWord_Click);
             // 
             // TextAnalyzer
             // 
@@ -273,9 +285,9 @@
             this.gb_analysis.ResumeLayout(false);
             this.gb_finding.ResumeLayout(false);
             this.gb_finding.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.num_showTop)).EndInit();
             this.gb_sorting.ResumeLayout(false);
             this.gb_sorting.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.num_showTop)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -303,6 +315,7 @@
         private System.Windows.Forms.Button btn_showTop;
         private System.Windows.Forms.Label lbl_showTop;
         private System.Windows.Forms.NumericUpDown num_showTop;
+        private System.Windows.Forms.Button btn_FindingWord;
     }
 }
 

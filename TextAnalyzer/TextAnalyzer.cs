@@ -59,6 +59,10 @@ namespace TextAnalyzer
 
         private void writeToListBox(List<string> items)
         {
+            Invoke(new EmptyDelegate(() =>
+            {
+                gb_finding.Enabled = false;
+            }));
             new Thread(new ThreadStart(() =>
             {
                 onProgressInitialized(items.Count);
@@ -72,6 +76,10 @@ namespace TextAnalyzer
                     onProgressChanged();
                 }
                 onProgressCompleted();
+                Invoke(new EmptyDelegate(() =>
+                {
+                    gb_finding.Enabled = true;
+                }));
             })).Start();
         }
 
@@ -107,12 +115,14 @@ namespace TextAnalyzer
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 mi_analysis.Enabled = true;
+                reset();
                 gb_finding.Visible = false;
                 fileName = dialog.FileName;
                 showMessage("Файл выбран!");
             }
-            else
+            else if (lb_words.Items.Count <= 1)
             {
+                mi_analysis.Enabled = false;
                 showMessage("Файл не выбран!");
             }
         }
@@ -183,12 +193,12 @@ namespace TextAnalyzer
 
         private void mi_open_Click(object sender, EventArgs e)
         {
-            mi_analysis.Enabled = false;
             openFile();
         }
 
         private void mi_startAnalysis_Click(object sender, EventArgs e)
         {
+            reset();
             gb_finding.Visible = false;
             loadText();
         }
@@ -227,11 +237,18 @@ namespace TextAnalyzer
                 Dictionary<string, int> itemsWithCount = new Dictionary<string, int>();
                 foreach (string item in items)
                 {
-                    string pattern = @"\w+";
-                    Match match = Regex.Match(item, pattern);
-                    string word = match.Value;
-                    string count = match.NextMatch().Value;
-                    itemsWithCount.Add(word, Convert.ToInt32(count));
+                    try
+                    {
+                        string pattern = @"[\w’']+";
+                        Match match = Regex.Match(item, pattern);
+                        string word = match.Value;
+                        string count = match.NextMatch().Value;
+                        itemsWithCount.Add(word, Convert.ToInt32(count));
+                    }
+                    catch (FormatException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                 }
                 itemsWithCount = sortItemsByCount(itemsWithCount);
                 items = new List<string>();
@@ -255,6 +272,7 @@ namespace TextAnalyzer
 
         private void btn_startFinding_Click(object sender, EventArgs e)
         {
+            resetSortingGroup();
             string subword = tb_wordToFind.Text;
             if (subword.Length > 0)
             {
@@ -285,14 +303,59 @@ namespace TextAnalyzer
             writeToListBox(items);
         }
 
+        private void resetSortingGroup()
+        {
+            rb_byAlphabet.Checked = false;
+            rb_byCount.Checked = false;
+        }
+
+        private void reset()
+        {
+            tb_wordToFind.Text = "";
+            num_showTop.Value = 0;
+            resetSortingGroup();
+        }
+
         private void btn_resetFinding_Click(object sender, EventArgs e)
         {
             writeToListBox(wordsWithCounts);
+            reset();
         }
 
         private void btn_showTop_Click(object sender, EventArgs e)
         {
+            resetSortingGroup();
+            //TODO: обработать нажатие кнопки showTop
+        }
 
+        private void btn_FindingWord_Click(object sender, EventArgs e)
+        {
+            resetSortingGroup();
+            string findWord = tb_wordToFind.Text;
+            if (findWord.Length > 0)
+            {
+                workerThread = new Thread(new ThreadStart(() =>
+                {
+                    onProgressInitialized(wordsWithCounts.Count);
+                    showMessage("Поиск...");
+                    List<string> items = new List<string>();
+                    foreach (string item in wordsWithCounts)
+                    {
+                        string pattern = @"[\w’']+";
+                        Match match = Regex.Match(item, pattern);
+                        string word = match.Value;
+                        if (word.Equals(findWord))
+                        {
+                            items.Add(item);
+                            onFindingCompleted(items);
+                            return;
+                        }
+                        onProgressChanged();
+                    }
+                    showMessage("Слово не найдено!");
+                }));
+                workerThread.Start();
+            }
         }
     }
 
