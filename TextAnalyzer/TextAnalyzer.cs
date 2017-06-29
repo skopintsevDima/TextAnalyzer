@@ -229,33 +229,39 @@ namespace TextAnalyzer
             return items;
         }
 
+        private List<string> getSortedByCountItems()
+        {
+            List<string> items = getItemsFromListBox();
+            Dictionary<string, int> itemsWithCount = new Dictionary<string, int>();
+            foreach (string item in items)
+            {
+                try
+                {
+                    string pattern = @"[\w’']+";
+                    Match match = Regex.Match(item, pattern);
+                    string word = match.Value;
+                    string count = match.NextMatch().Value;
+                    itemsWithCount.Add(word, Convert.ToInt32(count));
+                }
+                catch (FormatException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            itemsWithCount = sortItemsByCount(itemsWithCount);
+            items = new List<string>();
+            foreach (string key in itemsWithCount.Keys)
+            {
+                items.Add(key + ": " + counts[key]);
+            }
+            return items;
+        }
+
         private void rb_byCount_CheckedChanged(object sender, EventArgs e)
         {
             if (rb_byCount.Checked)
             {
-                List<string> items = getItemsFromListBox();
-                Dictionary<string, int> itemsWithCount = new Dictionary<string, int>();
-                foreach (string item in items)
-                {
-                    try
-                    {
-                        string pattern = @"[\w’']+";
-                        Match match = Regex.Match(item, pattern);
-                        string word = match.Value;
-                        string count = match.NextMatch().Value;
-                        itemsWithCount.Add(word, Convert.ToInt32(count));
-                    }
-                    catch (FormatException ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
-                }
-                itemsWithCount = sortItemsByCount(itemsWithCount);
-                items = new List<string>();
-                foreach (string key in itemsWithCount.Keys)
-                {
-                    items.Add(key + ": " + counts[key]);
-                }
+                List<string> items = getSortedByCountItems();
                 writeToListBox(items);
             }
         }
@@ -324,8 +330,17 @@ namespace TextAnalyzer
 
         private void btn_showTop_Click(object sender, EventArgs e)
         {
-            resetSortingGroup();
-            //TODO: обработать нажатие кнопки showTop
+            int topCount = (int)num_showTop.Value;
+            if (topCount > 0 && topCount <= lb_words.Items.Count - 1)
+            {
+                resetSortingGroup();
+                List<string> items = getSortedByCountItems().Take(topCount).ToList();
+                writeToListBox(items);
+            }
+            else
+            {
+                MessageBox.Show("Нельзя отобразить Топ-" + topCount + " слов!");
+            }
         }
 
         private void btn_FindingWord_Click(object sender, EventArgs e)
@@ -352,7 +367,7 @@ namespace TextAnalyzer
                         }
                         onProgressChanged();
                     }
-                    showMessage("Слово не найдено!");
+                    MessageBox.Show("Слово не найдено!");
                 }));
                 workerThread.Start();
             }
